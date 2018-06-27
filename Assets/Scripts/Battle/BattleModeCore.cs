@@ -90,29 +90,34 @@ public class BattleModeCore : MonoBehaviour
 
     void UpdateRoundState()
     {
+
         if (roundState == RoundState.Initialize)
         {
-            turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
-            turnTable.currentCharacterTurn.stats.readyToAttack = true;
+            if (turnTable.currentCharacterTurn.stats != null)
+            {
+                turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
+                turnTable.currentCharacterTurn.stats.readyToAttack = true;
 
-            //leftCharInfo.UpdateLeftCharInfo();
-            battleHUD.UpdateMovementText();
-            UpdateTurnTag();
+                //leftCharInfo.UpdateLeftCharInfo();
+                battleHUD.UpdateMovementText();
+                UpdateTurnTag();
 
-            if (turnTable.currentCharacterTurn.team != BattleCharacter.Team.PlayerForces)
-                DisplayHUD(false);
+                if (turnTable.currentCharacterTurn.team != BattleCharacter.Team.PlayerForces)
+                    BattleHUD.GetResource().ActivateBattleChoices(false);
 
-            else
-                DisplayHUD(true);
+                else
+                    BattleHUD.GetResource().ActivateBattleChoices(true);
 
-            //bCamera.SetCameraToCharacter(turnTable.currentCharacterTurn);
+                //bCamera.SetCameraToCharacter(turnTable.currentCharacterTurn);
 
-            roundState = RoundState.Action;
+                roundState = RoundState.Action;
+            }
         }
+
 
         else if (roundState == RoundState.Action)
         {
-           
+
             if (!showingMovementOptions && !bMovement.characterIsMoving)
             {
                 if (Input.GetButtonDown("Fire1"))
@@ -188,11 +193,6 @@ public class BattleModeCore : MonoBehaviour
         }
     }
 
-    void DisplayHUD(bool display)
-    {
-        GameObject.Find("BattleHUD").SetActive(display);
-    }
-
     public void EndTurn()
     {
         roundState = RoundState.End;
@@ -243,7 +243,7 @@ public class BattleModeCore : MonoBehaviour
 
     }
 
- // HUD SCRIPTS //
+    // HUD SCRIPTS //
 
     // Called when clicking ATTACK on HUD.
     public void OnAttackClick()
@@ -303,7 +303,7 @@ public class BattleModeCore : MonoBehaviour
             ClearTiles();
             ClearMovement();
         }
-        
+
         specialattackTiles = BattleAttacking.ShowAttackOptions(skill);
 
         // Glow for attackTiles
@@ -353,7 +353,7 @@ public class BattleModeCore : MonoBehaviour
 
 
 
- // HELPERS //
+    // HELPERS //
 
     public void ClearMovement()
     {
@@ -409,7 +409,7 @@ public class BattleModeCore : MonoBehaviour
         activeTurnTag.transform.localPosition = new Vector3(0f, 1f, 0f);
     }
 
-// DEBUG //
+    // DEBUG //
 
     public void StartBattle()
     {

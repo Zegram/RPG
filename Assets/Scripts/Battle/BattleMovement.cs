@@ -142,6 +142,7 @@ public class BattleMovement : MonoBehaviour
 
     void MoveCharacterTo(TileData tileData)
     {
+        BattleHUD.GetResource().ActivateBattleChoices(false);
         tileToMove = new TileData(tileData);
         characterIsMoving = true;
         StartCoroutine("MoveBetweenTiles", tileToMove);
@@ -205,6 +206,7 @@ public class BattleMovement : MonoBehaviour
                     battleCore.ClearTiles();
                     characterIsMoving = false;
                     i = 0;
+                    BattleHUD.GetResource().ActivateBattleChoices(true);
                     yield break;
                 }
             }

@@ -149,8 +149,6 @@ public class BattleMovement : MonoBehaviour
         // CLEAN
         battleCore.ClearMovement();
 
-        //battleCore.ClearMovement();
-
         // Reduce Movement
         battleCore.turnTable.currentCharacterTurn.stats.currentMovement -= tileData.movementCost;
 

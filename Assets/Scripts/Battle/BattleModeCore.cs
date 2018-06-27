@@ -172,10 +172,13 @@ public class BattleModeCore : MonoBehaviour
         else if (roundState == RoundState.End)
         {
             //if (rightCharInfo.gameObject.activeInHierarchy)
-           // rightCharInfo.gameObject.SetActive(false);
+            // rightCharInfo.gameObject.SetActive(false);
 
             if (showingMovementOptions)
+            {
                 ClearMovement();
+                ClearTiles();
+            }
 
             if (showingAttackOptions)
                 ClearAttack();
@@ -246,7 +249,10 @@ public class BattleModeCore : MonoBehaviour
     public void OnAttackClick()
     {
         if (showingMovementOptions)
+        {
             ClearMovement();
+            ClearTiles();
+        }
 
         if (showingSpecialAttackOptions)
             ClearAttack();
@@ -293,8 +299,10 @@ public class BattleModeCore : MonoBehaviour
         }
 
         if (showingMovementOptions)
+        {
+            ClearTiles();
             ClearMovement();
-
+        }
         
         specialattackTiles = BattleAttacking.ShowAttackOptions(skill);
 
@@ -339,6 +347,7 @@ public class BattleModeCore : MonoBehaviour
         else
         {
             ClearMovement();
+            ClearTiles();
         }
     }
 

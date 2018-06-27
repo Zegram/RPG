@@ -362,6 +362,20 @@ public class BattleModeCore : MonoBehaviour
 
         showingMovementOptions = false;
     }
+
+
+    public void ClearTiles()
+    {
+        BattleModeCore bCore = BattleModeCore.GetResource();
+
+        for (int j = 0; j < bCore.movementTiles.Count; j++)
+        {
+            bCore.movementTiles[j].movementPath.Clear();
+        }
+
+        bCore.movementTiles.Clear();
+    }
+
     public void ClearAttack()
     {
         // Tile Tags
@@ -376,6 +390,7 @@ public class BattleModeCore : MonoBehaviour
             GameObject.Destroy(child.gameObject);
         }
 
+        BattleModeCore.GetResource().attackingTiles.Clear();
         showingAttackOptions = false;
         showingSpecialAttackOptions = false;
     }

@@ -72,7 +72,7 @@ public class BattleMovement : MonoBehaviour
                                     currTiles[j].neighborTiles[k].tag = "Moveable";
 
                                     //Movement Path
-                                    
+
                                     for (int x = 0; x < currTiles[j].movementPath.Count; x++)
                                         currTiles[j].neighborTiles[k].movementPath.Add(currTiles[j].movementPath[x]);
 
@@ -147,10 +147,9 @@ public class BattleMovement : MonoBehaviour
         StartCoroutine("MoveBetweenTiles", tileToMove);
 
         // CLEAN
-        battleCore.showingMovementOptions = false;
         battleCore.ClearMovement();
 
-        
+        //battleCore.ClearMovement();
 
         // Reduce Movement
         battleCore.turnTable.currentCharacterTurn.stats.currentMovement -= tileData.movementCost;
@@ -165,59 +164,54 @@ public class BattleMovement : MonoBehaviour
 
     IEnumerator MoveBetweenTiles(TileData tileToMove)
     {
+        bool readyToRotate = true;
         while (true)
         {
             Transform currChar = battleCore.turnTable.currentCharacterTurn.transform;
             float step = 10 * Time.deltaTime;
 
-                Vector3 target = new Vector3(tileToMove.movementPath[i].transform.localPosition.x, tileToMove.movementPath[i].transform.localPosition.y + 1, tileToMove.movementPath[i].transform.localPosition.z);
-                currChar.localPosition = Vector3.MoveTowards(currChar.localPosition, target, step);
+            if (readyToRotate)
+            {
+                // Rotation
+                TileData currTile = battleCore.turnTable.currentCharacterTurn.currentPos;
 
-            // Rotation
-            TileData currTile = battleCore.turnTable.currentCharacterTurn.currentPos;
+                int xDir = currTile.x.CompareTo(tileToMove.movementPath[i].x);
+                int zDir = currTile.z.CompareTo(tileToMove.movementPath[i].z);
+                float rotation = 0;
 
-            float xDir = currTile.x.CompareTo(tileToMove.movementPath[i].transform.localRotation.x);
-            float zDir = currTile.z.CompareTo(tileToMove.movementPath[i].transform.localRotation.z);
-            float rotation = 0;
+                if (xDir == 0 && zDir > 0)
+                    rotation = 180;
+                else if (xDir > 0 && zDir == 0)
+                    rotation = 270;
+                else if (xDir == 0 && zDir < 0)
+                    rotation = 0;
+                else if (xDir < 0 && zDir == 0)
+                    rotation = 90;
 
-            if (xDir == 0 && zDir > 0)
-                rotation = 0;
-            else if (xDir > 0 && zDir == 0)
-                rotation = 90;
-            else if (xDir == 0 && zDir < 0)
-                rotation = 180;
-            else if (xDir < 0 && zDir == 0)
-                rotation = 270;
+                currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                readyToRotate = false;
+            }
 
-            currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
-
-            //Vector3 targetDir = new Vector3(currChar.transform.localRotation.x, rotation, currChar.transform.localRotation.z);
-            //Vector3 newDir = Vector3.RotateTowards(currChar.transform.up, targetDir, step, 0.0f);
-            //currChar.transform.localRotation = Quaternion.LookRotation(newDir);
-
+            Vector3 target = new Vector3(tileToMove.movementPath[i].transform.localPosition.x, tileToMove.movementPath[i].transform.localPosition.y + 1, tileToMove.movementPath[i].transform.localPosition.z);
+            currChar.localPosition = Vector3.MoveTowards(currChar.localPosition, target, step);
 
             //2
-                if (currChar.localPosition == target)
+            if (currChar.localPosition == target)
+            {
+                i++;
+                readyToRotate = true;
+
+                if (i >= tileToMove.movementPath.Count)
                 {
-                    i++;
-                        if(i >= tileToMove.movementPath.Count)
-                        {
-                            // Clear Movement Paths
-                            for (int j = 0; j < battleCore.mapData.mapTiles.Count; j++)
-                            {
-                                if (battleCore.mapData.mapTiles[j].movementPath.Count != 0)
-                                {
-                                    battleCore.mapData.mapTiles[j].movementPath.Clear();
-                                }
-                            }
 
-                            characterIsMoving = false;
-                            i = 0;
-                            yield break;
-                        }
+                    battleCore.ClearTiles();
+                    characterIsMoving = false;
+                    i = 0;
+                    yield break;
                 }
+            }
 
-                yield return null;
+            yield return null;
         }
     }
 

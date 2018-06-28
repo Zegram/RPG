@@ -20,6 +20,7 @@ public class TileData : MonoBehaviour
 
     public List<TileData> neighborTiles = new List<TileData>();
     public List<TileData> movementPath = new List<TileData>();
+    public GameObject glow = null;
 
     public TileData() { }
     public TileData(TileData tileData)

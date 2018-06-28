@@ -6,7 +6,7 @@ public class BattleMovement : MonoBehaviour
 {
 
     // DoubleClick
-    float catchTime = 1.0f;
+    float catchTime = 0.3f;
     float lastClickTime = 0f;
     BattleModeCore battleCore = null;
     int i = 0;
@@ -114,22 +114,45 @@ public class BattleMovement : MonoBehaviour
     {
         if (battleCore.showingMovementOptions)
         {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            // Hovering over with mouse.
+            if (Physics.Raycast(ray, out hit))
+            {
+               
+            }
+
+            //Clicking with mouse
             if (Input.GetButtonDown("Fire1"))
             {
+                // Doubleclick
                 if (Time.time - lastClickTime < catchTime)
                 {
-
+                    if (hit.collider.tag == "Moveable")
+                    {
+                        MoveCharacterTo(hit.transform.GetComponent<TileData>());
+                    }
                 }
+                // Singleclick
                 else
                 {
-                    RaycastHit hit;
-                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
                     if (Physics.Raycast(ray, out hit))
                     {
                         if (hit.collider.tag == "Moveable")
                         {
-                            MoveCharacterTo(hit.transform.GetComponent<TileData>());
+                            List<TileData> tilePath = hit.transform.GetComponent<TileData>().movementPath;
+
+                            for(int j = 0; j < battleCore.movementTiles.Count; j++)
+                            {
+                                battleCore.movementTiles[j].glow.GetComponent<Renderer>().material.SetColor("_TintColor", Color.yellow);
+                            }
+
+                            for (int i = 0; i < tilePath.Count; i++)
+                            {
+                                // Change Color
+                                tilePath[i].glow.GetComponent<Renderer>().material.SetColor("_TintColor", Color.red);
+                            }
                         }
                     }
                 }

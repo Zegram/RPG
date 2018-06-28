@@ -340,6 +340,7 @@ public class BattleModeCore : MonoBehaviour
                 GameObject instance = Instantiate(movementGlow);
                 instance.transform.SetParent(GameObject.Find("Glows").transform);
                 instance.transform.localPosition = movementTiles[i].transform.localPosition + new Vector3(0f, 0.1f, 0f);
+                movementTiles[i].glow = instance;
             }
             showingMovementOptions = true;
         }
@@ -361,7 +362,9 @@ public class BattleModeCore : MonoBehaviour
         for (int i = 0; i < mapData.mapTiles.Count; i++)
         {
             if (mapData.mapTiles[i].tag == "Moveable")
+            {
                 mapData.mapTiles[i].tag = "Untagged";
+            }
         }
 
         foreach (Transform child in GameObject.Find("Glows").transform)

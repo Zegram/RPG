@@ -120,7 +120,7 @@ public class BattleMovement : MonoBehaviour
             // Hovering over with mouse.
             if (Physics.Raycast(ray, out hit))
             {
-               
+
             }
 
             //Clicking with mouse
@@ -143,7 +143,7 @@ public class BattleMovement : MonoBehaviour
                         {
                             List<TileData> tilePath = hit.transform.GetComponent<TileData>().movementPath;
 
-                            for(int j = 0; j < battleCore.movementTiles.Count; j++)
+                            for (int j = 0; j < battleCore.movementTiles.Count; j++)
                             {
                                 battleCore.movementTiles[j].glow.GetComponent<Renderer>().material.SetColor("_TintColor", Color.yellow);
                             }
@@ -163,7 +163,7 @@ public class BattleMovement : MonoBehaviour
     }
 
 
-    void MoveCharacterTo(TileData tileData)
+    public void MoveCharacterTo(TileData tileData)
     {
         BattleHUD.GetResource().ActivateBattleChoices(false);
         tileToMove = new TileData(tileData);
@@ -223,13 +223,20 @@ public class BattleMovement : MonoBehaviour
                 i++;
                 readyToRotate = true;
 
+                // Reached the end
                 if (i >= tileToMove.movementPath.Count)
                 {
 
                     battleCore.ClearTiles();
                     characterIsMoving = false;
                     i = 0;
-                    BattleHUD.GetResource().ActivateBattleChoices(true);
+
+                    if (battleCore.turnTable.currentCharacterTurn.charType == BattleCharacter.CharacterType.Player)
+                        BattleHUD.GetResource().ActivateBattleChoices(true);
+
+                    if (battleCore.turnTable.currentCharacterTurn.charType == BattleCharacter.CharacterType.NPC)
+                        battleCore.turnTable.currentCharacterTurn.transform.GetComponent<CombatAI>().state = CombatAI.aiState.attacking;
+
                     yield break;
                 }
             }

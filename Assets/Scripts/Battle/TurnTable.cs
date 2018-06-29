@@ -25,8 +25,11 @@ public class TurnTable : MonoBehaviour {
         characters = mapData.characters;
 
         // Sort characters by their SPEED value.
-        characters.Sort((x, y) => x.stats.speed.CompareTo(y.stats.speed));
-        characters.Reverse();
+        if (characters[1].stats != null)
+        {
+            characters.Sort((x, y) => x.stats.speed.CompareTo(y.stats.speed));
+            characters.Reverse();
+        }
 
         currentCharacterTurn = characters[0];
         UpdateVisualTurnTable();

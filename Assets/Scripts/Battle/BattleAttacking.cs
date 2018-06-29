@@ -171,7 +171,7 @@ public class BattleAttacking : MonoBehaviour {
             }
         }
 
-    void AttackCharacter(BattleCharacter target)
+    public void AttackCharacter(BattleCharacter target)
     {
         // CLEAN
         battleCore.showingAttackOptions = false;
@@ -272,5 +272,10 @@ public class BattleAttacking : MonoBehaviour {
         instance.GetComponent<TextMesh>().color = textColor;
         instance.transform.SetParent(GameObject.Find("Map").transform);
         instance.transform.localPosition = target.transform.localPosition + new Vector3(0f, 2.0f, 0f);
+    }
+
+    public static BattleAttacking GetResource()
+    {
+        return GameObject.Find("GlobalBattleData").GetComponent<BattleAttacking>();
     }
 }

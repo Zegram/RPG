@@ -90,106 +90,156 @@ public class BattleModeCore : MonoBehaviour
 
     void UpdateRoundState()
     {
-
-        if (roundState == RoundState.Initialize)
+        // Player
+        if (turnTable.currentCharacterTurn.charType == BattleCharacter.CharacterType.Player)
         {
-            if (turnTable.currentCharacterTurn.stats != null)
+            if (roundState == RoundState.Initialize)
             {
-                turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
-                turnTable.currentCharacterTurn.stats.readyToAttack = true;
+                if (turnTable.currentCharacterTurn.stats != null)
+                {
+                    turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
+                    turnTable.currentCharacterTurn.stats.readyToAttack = true;
 
-                //leftCharInfo.UpdateLeftCharInfo();
-                battleHUD.UpdateMovementText();
-                UpdateTurnTag();
+                    //leftCharInfo.UpdateLeftCharInfo();
+                    battleHUD.UpdateMovementText();
+                    UpdateTurnTag();
 
-                if (turnTable.currentCharacterTurn.team != BattleCharacter.Team.PlayerForces)
-                    BattleHUD.GetResource().ActivateBattleChoices(false);
+                    if (turnTable.currentCharacterTurn.team != BattleCharacter.Team.PlayerForces)
+                        BattleHUD.GetResource().ActivateBattleChoices(false);
 
-                else
-                    BattleHUD.GetResource().ActivateBattleChoices(true);
+                    else
+                        BattleHUD.GetResource().ActivateBattleChoices(true);
 
-                //bCamera.SetCameraToCharacter(turnTable.currentCharacterTurn);
+                    //bCamera.SetCameraToCharacter(turnTable.currentCharacterTurn);
 
-                roundState = RoundState.Action;
+                    roundState = RoundState.Action;
+                }
             }
-        }
 
 
-        else if (roundState == RoundState.Action)
-        {
-
-            if (!showingMovementOptions && !bMovement.characterIsMoving)
+            else if (roundState == RoundState.Action)
             {
-                if (Input.GetButtonDown("Fire1"))
+
+                if (!showingMovementOptions && !bMovement.characterIsMoving)
+                {
+                    if (Input.GetButtonDown("Fire1"))
+                    {
+                        RaycastHit hit;
+                        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                        if (Physics.Raycast(ray, out hit))
+                        {
+                            if (hit.collider.GetComponent<TileData>().occupied == true)
+                            {
+                                //rightCharInfo.gameObject.SetActive(true);
+
+                                for (int i = 0; i < turnTable.characters.Count; i++)
+                                {
+                                    if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
+                                    {
+                                        //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
+                                    }
+                                }
+                            }
+                            //else
+                            //    rightCharInfo.gameObject.SetActive(false);
+                        }
+                    }
+                }
+
+                // While showing attack options, hovering over is enough.
+                if (showingAttackOptions)
                 {
                     RaycastHit hit;
                     Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                     if (Physics.Raycast(ray, out hit))
                     {
-                        if (hit.collider.GetComponent<TileData>().occupied == true)
+                        if (hit.collider.GetComponent<TileData>() != null)
                         {
-                            //rightCharInfo.gameObject.SetActive(true);
-
-                            for (int i = 0; i < turnTable.characters.Count; i++)
+                            if (hit.collider.GetComponent<TileData>().occupied == true)
                             {
-                                if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
+                                //rightCharInfo.gameObject.SetActive(true);
+
+                                for (int i = 0; i < turnTable.characters.Count; i++)
                                 {
-                                    //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
+                                    if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
+                                    {
+                                        //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
+                                    }
                                 }
                             }
                         }
-                        //else
-                        //    rightCharInfo.gameObject.SetActive(false);
                     }
                 }
+
+
             }
 
-            // While showing attack options, hovering over is enough.
-            if (showingAttackOptions)
+            else if (roundState == RoundState.End)
             {
-                RaycastHit hit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                //if (rightCharInfo.gameObject.activeInHierarchy)
+                // rightCharInfo.gameObject.SetActive(false);
 
-                if (Physics.Raycast(ray, out hit))
+                if (showingMovementOptions)
                 {
-                    if (hit.collider.GetComponent<TileData>() != null)
-                    {
-                        if (hit.collider.GetComponent<TileData>().occupied == true)
-                        {
-                            //rightCharInfo.gameObject.SetActive(true);
-
-                            for (int i = 0; i < turnTable.characters.Count; i++)
-                            {
-                                if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
-                                {
-                                    //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
-                                }
-                            }
-                        }
-                    }
+                    ClearMovement();
+                    ClearTiles();
                 }
+
+                if (showingAttackOptions)
+                    ClearAttack();
+
+                turnTable.NextTurn();
+                roundState = RoundState.Initialize;
             }
-
-
         }
 
-        else if (roundState == RoundState.End)
+        //AI
+        else if (turnTable.currentCharacterTurn.charType == BattleCharacter.CharacterType.NPC)
         {
-            //if (rightCharInfo.gameObject.activeInHierarchy)
-            // rightCharInfo.gameObject.SetActive(false);
+            BattleHUD.GetResource().ActivateBattleChoices(false);
+            CombatAI AI = turnTable.currentCharacterTurn.transform.GetComponent<CombatAI>();
 
-            if (showingMovementOptions)
+            if (roundState == RoundState.Initialize)
             {
-                ClearMovement();
-                ClearTiles();
+                if (turnTable.currentCharacterTurn.stats != null)
+                {
+                    turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
+                    turnTable.currentCharacterTurn.stats.readyToAttack = true;
+
+                    UpdateTurnTag();
+
+                    AI.state = CombatAI.aiState.targeting;
+                    roundState = RoundState.Action;
+                }
             }
 
-            if (showingAttackOptions)
-                ClearAttack();
+            else if (roundState == RoundState.Action)
+            {
+                // Simple AI
+                // 1. Choose Target
+                // 2. Movement
+                // 3. Attacking
+                if(AI.state == CombatAI.aiState.targeting)
+                    AI.ChooseTarget();
 
-            turnTable.NextTurn();
-            roundState = RoundState.Initialize;
+                if (AI.state == CombatAI.aiState.moving)
+                    AI.Movement();
+
+                if (AI.state == CombatAI.aiState.attacking)
+                    AI.Attack();
+
+                if (AI.state == CombatAI.aiState.end)
+                    roundState = RoundState.End;
+
+            }
+
+            else if (roundState == RoundState.End)
+            {
+                turnTable.NextTurn();
+                roundState = RoundState.Initialize;
+            }
         }
     }
 

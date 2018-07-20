@@ -5,11 +5,13 @@ using UnityEngine;
 public class BattleAttacking : MonoBehaviour {
 
     BattleModeCore battleCore = null;
+    BattleMovement bMovement = null;
     SelectionData sData = null;
 
     void Awake()
     {
         battleCore = BattleModeCore.GetResource();
+        bMovement = BattleMovement.GetResource();
         sData = SelectionData.GetResource();
     }
 
@@ -175,21 +177,24 @@ public class BattleAttacking : MonoBehaviour {
 
     public void AttackCharacter(BattleCharacter target)
     {
+        BattleCharacter currCharacter = battleCore.turnTable.currentCharacterTurn;
         // CLEAN
         battleCore.showingAttackOptions = false;
         battleCore.ClearAttack();
 
+        // Rotate towards the target
+        bMovement.RotateCharacter(currCharacter, currCharacter.currentPos, target.currentPos);
+
         // Reduce Attack Times
-        battleCore.turnTable.currentCharacterTurn.stats.readyToAttack = false;
+        currCharacter.stats.readyToAttack = false;
 
-        // Attack animation TODO
-        //battleCore.PlayAnimation(battleCore.turnTable.currentCharacterTurn, BattleModeCore.Animations.Attack);
+        // Attack animation
+        battleCore.PlayAnimationTrigger(currCharacter, BattleModeCore.Animations.Attack);
         
-
         //  ...Damage calculations (TODO: make better)
-        target.stats.currentHitPoints -= battleCore.turnTable.currentCharacterTurn.stats.attack;
+        target.stats.currentHitPoints -= currCharacter.stats.attack;
 
-        DisplayStringOnTarget(battleCore.turnTable.currentCharacterTurn.stats.attack.ToString(), target, Color.red);
+        DisplayStringOnTarget(currCharacter.stats.attack.ToString(), target, Color.red);
 
         //GameObject instance = Instantiate(battleCore.damageNumber);
         //instance.GetComponent<TextMesh>().text = battleCore.turnTable.currentCharacterTurn.stats.attack.ToString();
@@ -211,7 +216,7 @@ public class BattleAttacking : MonoBehaviour {
         // Reduce Attack Times
         battleCore.turnTable.currentCharacterTurn.stats.readyToAttack = false;
 
-        // 1337 damage calculations (TODO: make better)
+        // damage calculations (TODO: make better)
         SkillLibrary.Skill cSkill = battleCore.turnTable.currentCharacterTurn.stats.Class.skills[sData.selectedSkillIndex].skill;
         int totalDamage = 0;
         int totalHeal = 0;

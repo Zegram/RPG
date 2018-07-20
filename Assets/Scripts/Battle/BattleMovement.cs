@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Stuff regarding movement & rotation during battles can be found here
 public class BattleMovement : MonoBehaviour
 {
 
@@ -196,36 +197,37 @@ public class BattleMovement : MonoBehaviour
         bool readyToRotate = true;
         while (true)
         {
-            Transform currChar = battleCore.turnTable.currentCharacterTurn.transform;
+            //Transform currChar = battleCore.turnTable.currentCharacterTurn.transform;
+            BattleCharacter currChar = battleCore.turnTable.currentCharacterTurn;
             float step = MovementSpeed * Time.deltaTime;
 
             if (readyToRotate)
             {
                 // Rotation
                 TileData currTile = battleCore.turnTable.currentCharacterTurn.currentPos;
+                RotateCharacter(currChar, currTile, tileToMove.movementPath[i]);
+                //int xDir = currTile.x.CompareTo(tileToMove.movementPath[i].x);
+                //int zDir = currTile.z.CompareTo(tileToMove.movementPath[i].z);
+                //float rotation = 0;
 
-                int xDir = currTile.x.CompareTo(tileToMove.movementPath[i].x);
-                int zDir = currTile.z.CompareTo(tileToMove.movementPath[i].z);
-                float rotation = 0;
+                //if (xDir == 0 && zDir > 0)
+                //    rotation = 0;
+                //else if (xDir > 0 && zDir == 0)
+                //    rotation = 90;
+                //else if (xDir == 0 && zDir < 0)
+                //    rotation = 180;
+                //else if (xDir < 0 && zDir == 0)
+                //    rotation = 270;
 
-                if (xDir == 0 && zDir > 0)
-                    rotation = 0;
-                else if (xDir > 0 && zDir == 0)
-                    rotation = 90;
-                else if (xDir == 0 && zDir < 0)
-                    rotation = 180;
-                else if (xDir < 0 && zDir == 0)
-                    rotation = 270;
-
-                currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                //currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
                 readyToRotate = false;
             }
 
             Vector3 target = new Vector3(tileToMove.movementPath[i].transform.localPosition.x, tileToMove.movementPath[i].transform.localPosition.y + 1, tileToMove.movementPath[i].transform.localPosition.z);
-            currChar.localPosition = Vector3.MoveTowards(currChar.localPosition, target, step);
+            currChar.transform.localPosition = Vector3.MoveTowards(currChar.transform.localPosition, target, step);
 
             //2
-            if (currChar.localPosition == target)
+            if (currChar.transform.localPosition == target)
             {
                 battleCore.turnTable.currentCharacterTurn.currentPos = tileToMove.movementPath[i];
                 i++;             
@@ -254,6 +256,27 @@ public class BattleMovement : MonoBehaviour
 
             yield return null;
         }
+    }
+
+    // Turns character in current tile to face the target tile.
+    public void RotateCharacter(BattleCharacter character, TileData currTile, TileData targetTile)
+    {
+        Transform currChar = character.transform;
+
+        int xDir = currTile.x.CompareTo(targetTile.x);
+        int zDir = currTile.z.CompareTo(targetTile.z);
+        float rotation = 0;
+
+        if (xDir == 0 && zDir > 0)
+            rotation = 0;
+        else if (xDir > 0 && zDir == 0)
+            rotation = 90;
+        else if (xDir == 0 && zDir < 0)
+            rotation = 180;
+        else if (xDir < 0 && zDir == 0)
+            rotation = 270;
+
+        currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
     }
 
     public static BattleMovement GetResource()

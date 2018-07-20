@@ -28,7 +28,7 @@ public class TurnTable : MonoBehaviour {
         if (characters[1].stats != null)
         {
             characters.Sort((x, y) => x.stats.speed.CompareTo(y.stats.speed));
-            characters.Reverse();
+            //characters.Reverse();
         }
 
         currentCharacterTurn = characters[0];

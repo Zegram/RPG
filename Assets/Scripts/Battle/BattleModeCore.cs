@@ -465,11 +465,14 @@ public class BattleModeCore : MonoBehaviour
         activeTurnTag.transform.localPosition = new Vector3(0f, 6f, 0f);
     }
 
-    // Play an animation & stop playing every other animation.
+    // Play an animation & stop playing every other animation. Good for animations that can potentially loop.
     public void PlayAnimation(BattleCharacter character, Animations animation)
     {
         if (character.GetComponent<Animator>() == null)
+        {
+            Debug.Log(character.gameObject.name + " has no animator!");
             return;
+        }
 
         Animator a = character.GetComponent<Animator>();
 
@@ -482,6 +485,24 @@ public class BattleModeCore : MonoBehaviour
                 a.SetBool(val.ToString(), true);
         }
 
+    }
+
+    // Triggers are used when you want to play an animation once and then return back to the last animation. Good for ex. Attack animation.
+    public void PlayAnimationTrigger(BattleCharacter character, Animations animationTrigger)
+    {
+        if (character.GetComponent<Animator>() == null)
+        {
+            Debug.Log(character.gameObject.name + " has no animator!");
+            return;
+        }
+
+        Animator a = character.GetComponent<Animator>();
+
+        foreach (Animations val in System.Enum.GetValues(typeof(Animations)))
+        {
+            if (val == animationTrigger)
+                a.SetTrigger(val.ToString());
+        }
     }
 
     // DEBUG //

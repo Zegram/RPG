@@ -26,6 +26,8 @@ public class BattleModeCore : MonoBehaviour
     public enum GameState { Initialize, Game, End }
     public enum RoundState { Initialize, Action, End }
 
+    public enum Animations { Idle, Move, Attack, Death}
+
 
     // BOOLS
     public bool showingMovementOptions = false;
@@ -66,6 +68,7 @@ public class BattleModeCore : MonoBehaviour
     void OnEnable()
     {
         gameState = GameState.Initialize;
+        
     }
 
     // UPDATE //
@@ -459,7 +462,26 @@ public class BattleModeCore : MonoBehaviour
     public void UpdateTurnTag()
     {
         activeTurnTag.transform.parent = turnTable.currentCharacterTurn.transform;
-        activeTurnTag.transform.localPosition = new Vector3(0f, 1f, 0f);
+        activeTurnTag.transform.localPosition = new Vector3(0f, 6f, 0f);
+    }
+
+    // Play an animation & stop playing every other animation.
+    public void PlayAnimation(BattleCharacter character, Animations animation)
+    {
+        if (character.GetComponent<Animator>() == null)
+            return;
+
+        Animator a = character.GetComponent<Animator>();
+
+        foreach(Animations val in System.Enum.GetValues(typeof(Animations))) 
+        {
+            if (val != animation)
+                a.SetBool(val.ToString(), false);
+
+            else
+                a.SetBool(val.ToString(), true);
+        }
+
     }
 
     // DEBUG //

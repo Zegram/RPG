@@ -10,6 +10,7 @@ public class BattleMovement : MonoBehaviour
     float lastClickTime = 0f;
     BattleModeCore battleCore = null;
     int i = 0;
+    public float MovementSpeed = 10f;
 
     public bool characterIsMoving = false;
     TileData tileToMove = new TileData();
@@ -168,16 +169,22 @@ public class BattleMovement : MonoBehaviour
         BattleHUD.GetResource().ActivateBattleChoices(false);
         tileToMove = new TileData(tileData);
         characterIsMoving = true;
+        BattleCharacter currentCharacter = battleCore.turnTable.currentCharacterTurn;
+
+        // Coroutine for movement
         StartCoroutine("MoveBetweenTiles", tileToMove);
+
+        // Animation
+        battleCore.PlayAnimation(currentCharacter, BattleModeCore.Animations.Move);
 
         // CLEAN
         battleCore.ClearMovement();
 
         // Reduce Movement
-        battleCore.turnTable.currentCharacterTurn.stats.currentMovement -= tileData.movementCost;
+        currentCharacter.stats.currentMovement -= tileData.movementCost;
 
         // Set Characters current tile to tile we are moving to + Update occupations.
-        battleCore.turnTable.currentCharacterTurn.currentPos = tileData;
+        currentCharacter.currentPos = tileData;
         battleCore.mapData.UpdateOccupation();
 
         // Update HUD while were at it
@@ -190,7 +197,7 @@ public class BattleMovement : MonoBehaviour
         while (true)
         {
             Transform currChar = battleCore.turnTable.currentCharacterTurn.transform;
-            float step = 10 * Time.deltaTime;
+            float step = MovementSpeed * Time.deltaTime;
 
             if (readyToRotate)
             {
@@ -202,13 +209,13 @@ public class BattleMovement : MonoBehaviour
                 float rotation = 0;
 
                 if (xDir == 0 && zDir > 0)
-                    rotation = 180;
-                else if (xDir > 0 && zDir == 0)
-                    rotation = 270;
-                else if (xDir == 0 && zDir < 0)
                     rotation = 0;
-                else if (xDir < 0 && zDir == 0)
+                else if (xDir > 0 && zDir == 0)
                     rotation = 90;
+                else if (xDir == 0 && zDir < 0)
+                    rotation = 180;
+                else if (xDir < 0 && zDir == 0)
+                    rotation = 270;
 
                 currChar.localRotation = Quaternion.Euler(0.0f, rotation, 0.0f);
                 readyToRotate = false;
@@ -220,7 +227,8 @@ public class BattleMovement : MonoBehaviour
             //2
             if (currChar.localPosition == target)
             {
-                i++;
+                battleCore.turnTable.currentCharacterTurn.currentPos = tileToMove.movementPath[i];
+                i++;             
                 readyToRotate = true;
 
                 // Reached the end
@@ -230,6 +238,9 @@ public class BattleMovement : MonoBehaviour
                     battleCore.ClearTiles();
                     characterIsMoving = false;
                     i = 0;
+
+                    // Start playing idle again
+                    battleCore.PlayAnimation(battleCore.turnTable.currentCharacterTurn, BattleModeCore.Animations.Idle);
 
                     if (battleCore.turnTable.currentCharacterTurn.charType == BattleCharacter.CharacterType.Player)
                         BattleHUD.GetResource().ActivateBattleChoices(true);

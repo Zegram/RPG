@@ -134,7 +134,9 @@ public class BattleAttacking : MonoBehaviour {
                             }
 
                             if (target != null)
+                            {
                                 AttackCharacter(target);
+                            }
                         }
                     }
                 }
@@ -180,7 +182,11 @@ public class BattleAttacking : MonoBehaviour {
         // Reduce Attack Times
         battleCore.turnTable.currentCharacterTurn.stats.readyToAttack = false;
 
-        // 1337 damage calculations (TODO: make better)
+        // Attack animation TODO
+        //battleCore.PlayAnimation(battleCore.turnTable.currentCharacterTurn, BattleModeCore.Animations.Attack);
+        
+
+        //  ...Damage calculations (TODO: make better)
         target.stats.currentHitPoints -= battleCore.turnTable.currentCharacterTurn.stats.attack;
 
         DisplayStringOnTarget(battleCore.turnTable.currentCharacterTurn.stats.attack.ToString(), target, Color.red);

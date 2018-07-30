@@ -522,6 +522,22 @@ public class BattleModeCore : MonoBehaviour
         character.stats.Class = ClassLibrary.GetResource().JobClasses[0];
     }
 
+    public void UpdateDeaths()
+    {
+        for(int i = 0; i < mapData.characters.Count; i++)
+        {
+            if (mapData.characters[i].stats.currentHitPoints <= 0)
+            {
+                // This character has died
+                mapData.characters[i].stats.DEAD = true;
+                PlayAnimationTrigger(mapData.characters[i], Animations.Death);
+            }
+
+            else
+                mapData.characters[i].stats.DEAD = false;
+        }
+    }
+
     public static BattleModeCore GetResource()
     {
         return GameObject.Find("GlobalBattleData").GetComponent<BattleModeCore>();

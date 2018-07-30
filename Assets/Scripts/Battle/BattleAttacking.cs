@@ -202,6 +202,7 @@ public class BattleAttacking : MonoBehaviour {
         //instance.transform.localPosition = target.transform.localPosition + new Vector3(0f, 2.0f, 0f);
 
         // Update turntable after every attack. (see if dead)
+        battleCore.UpdateDeaths();
         battleCore.turnTable.UpdateTable();
         //battleCore.leftCharInfo.UpdateLeftCharInfo();
 

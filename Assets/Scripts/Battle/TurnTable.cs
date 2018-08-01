@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Handles TurnTable and the visual part "VisualTurnTable" in the HUD.
-public class TurnTable : MonoBehaviour {
+public class TurnTable : MonoBehaviour
+{
 
     MapData mapData = new MapData();
-   
-    public List<BattleCharacter> characters = new List<BattleCharacter>();
-    public BattleCharacter currentCharacterTurn = new BattleCharacter();
+
+    public List<BattleCharacter> characters;
+    public BattleCharacter currentCharacterTurn;
     //public GameObject visualTurnTable = null;
     public int turnNumber = 0;
 
@@ -21,6 +22,9 @@ public class TurnTable : MonoBehaviour {
 
     public void InitializeTable()
     {
+        characters = new List<BattleCharacter>();
+        currentCharacterTurn = new BattleCharacter();
+
         mapData = MapData.GetResource();
         characters = mapData.characters;
 
@@ -28,7 +32,7 @@ public class TurnTable : MonoBehaviour {
         if (characters[1].stats != null)
         {
             characters.Sort((x, y) => x.stats.speed.CompareTo(y.stats.speed));
-            //characters.Reverse();
+            characters.Reverse();
         }
 
         currentCharacterTurn = characters[0];
@@ -40,7 +44,7 @@ public class TurnTable : MonoBehaviour {
     public void UpdateTable()
     {
         // Remove dead characters.
-        for(int i = 0; i < characters.Count; i++)
+        for (int i = 0; i < characters.Count; i++)
         {
             if (characters[i].stats.DEAD)
                 characters.RemoveAt(i);
@@ -60,20 +64,25 @@ public class TurnTable : MonoBehaviour {
         UpdateVisualTurnTable();
     }
 
+    public void ClearTable()
+    {
+        characters.Clear();
+        currentCharacterTurn = null;
+    }
     public void UpdateVisualTurnTable()
     {
-       /* for (int i = 0; i < visualTurnTable.transform.childCount; i++)
-        {
-            visualTurnTable.transform.GetChild(i).gameObject.SetActive(false);
-        }
+        /* for (int i = 0; i < visualTurnTable.transform.childCount; i++)
+         {
+             visualTurnTable.transform.GetChild(i).gameObject.SetActive(false);
+         }
 
-        for (int i = 0; i < characters.Count; i++)
-        {
-            visualTurnTable.transform.GetChild(i).GetComponent<Image>().sprite = characters[i].stats.charIcon;
-            visualTurnTable.transform.GetChild(i).gameObject.SetActive(true);
+         for (int i = 0; i < characters.Count; i++)
+         {
+             visualTurnTable.transform.GetChild(i).GetComponent<Image>().sprite = characters[i].stats.charIcon;
+             visualTurnTable.transform.GetChild(i).gameObject.SetActive(true);
 
 
-        }*/
+         }*/
     }
 
     public static TurnTable GetResource()

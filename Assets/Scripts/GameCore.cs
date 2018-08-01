@@ -59,4 +59,16 @@ public class GameCore : MonoBehaviour {
     }
 
 
+    public void StartBattleMode()
+    {
+        currentGameMode = GameMode.Battle;
+        BattleModeCore.GetResource().InitializeBattle();
+    }
+
+    public void StartFreeRoam()
+    {
+        currentGameMode = GameMode.FreeRoam;
+        BattleHUD.GetResource().ActivateBattleChoices(false);
+        //BattleModeCore.GetResource().InitializeBattle();
+    }
 }

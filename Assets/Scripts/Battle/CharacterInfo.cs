@@ -9,41 +9,65 @@ public class CharacterInfo : MonoBehaviour
 
     public Texture charIcon = null;
 
-    public Slider healthSlider = null;
-    public Text healthNumber = null;
+    Slider healthSlider = null;
+    Text healthNumber = null;
 
-    public Slider specialSlider = null;
-    public Text specialNumber = null;
+    Slider specialSlider = null;
+    Text specialNumber = null;
+
+    Text name = null;
+
+    CharacterStats stats = null;
+
+    public enum Side { left, right }
+
+    public Side side = Side.left;
 
     void Start()
     {
         bCore = BattleModeCore.GetResource();
-    }
-
-    public void UpdateLeftCharInfo()
-    {       
-        CharacterStats stats = bCore.turnTable.currentCharacterTurn.stats;
+        healthSlider = transform.Find("HealthSlider").GetComponent<Slider>();
+        healthNumber = transform.Find("Health").GetComponent<Text>();
+        name = transform.Find("Name").GetComponent<Text>();
         
-        healthSlider.maxValue = stats.hitPoints;
-        healthSlider.value = stats.currentHitPoints;
-        healthNumber.text = stats.currentHitPoints +  " / " + stats.hitPoints;
 
-        specialSlider.maxValue = stats.specialPoints;
-        specialSlider.value = stats.currentSpecialPoints;
-        specialNumber.text = stats.currentSpecialPoints + " / " + stats.specialPoints;
+        if(side == Side.left)
+            stats = bCore.turnTable.currentCharacterTurn.stats;
 
     }
 
-    public void UpdateRightCharInfo(BattleCharacter character)
+    void Update()
     {
-        CharacterStats stats = character.stats;
+        if (side == Side.left)
+            stats = bCore.turnTable.currentCharacterTurn.stats;
+
+        name.text = stats.name;
 
         healthSlider.maxValue = stats.hitPoints;
         healthSlider.value = stats.currentHitPoints;
-        healthNumber.text = stats.currentHitPoints + " / " + stats.hitPoints;
-
-        specialSlider.maxValue = stats.specialPoints;
-        specialSlider.value = stats.currentSpecialPoints;
-        specialNumber.text = stats.currentSpecialPoints + " / " + stats.specialPoints;
+        healthNumber.text = "Health: " + stats.currentHitPoints + " / " + stats.hitPoints;
     }
+
+    public void UpdateStats(BattleCharacter character)
+    {
+        stats = character.stats;
+    }
+
+    //public void UpdateCharInfo()
+    //{       
+    //    //CharacterStats stats = bCore.turnTable.currentCharacterTurn.stats;
+        
+    //    //healthSlider.maxValue = stats.hitPoints;
+    //    //healthSlider.value = stats.currentHitPoints;
+    //    //healthNumber.text = "Health: " + stats.currentHitPoints +  " / " + stats.hitPoints;
+    //}
+
+    //public void UpdateCharInfo(BattleCharacter character)
+    //{
+    //    CharacterStats stats = character.stats;
+
+    //    healthSlider.maxValue = stats.hitPoints;
+    //    healthSlider.value = stats.currentHitPoints;
+    //    healthNumber.text = "Health: " + stats.currentHitPoints + " / " + stats.hitPoints;
+    //}
 }

@@ -68,7 +68,12 @@ public class BattleModeCore : MonoBehaviour
     void OnEnable()
     {
         gameState = GameState.Initialize;
-        
+        mapData = MapData.GetResource();
+        turnTable = TurnTable.GetResource();
+        battleHUD = BattleHUD.GetResource();
+        bMovement = BattleMovement.GetResource();
+        sData = SelectionData.GetResource();
+
     }
 
     // UPDATE //
@@ -76,17 +81,17 @@ public class BattleModeCore : MonoBehaviour
     void Update()
     {
         UpdateGameState();
-        UpdateRoundState();
     }
 
     void UpdateGameState()
     {
-        if (gameState == GameState.Initialize)
-            InitializeBattle();
+        //if (gameState == GameState.Initialize)
+        //    InitializeBattle();
 
-        else if (gameState == GameState.Game)
+        if (gameState == GameState.Game)
         {
             BattleOptions();
+            UpdateRoundState();
         }
 
     }
@@ -103,7 +108,10 @@ public class BattleModeCore : MonoBehaviour
                     turnTable.currentCharacterTurn.stats.currentMovement = turnTable.currentCharacterTurn.stats.movement;
                     turnTable.currentCharacterTurn.stats.readyToAttack = true;
 
-                    //leftCharInfo.UpdateLeftCharInfo();
+                    if(leftCharInfo.gameObject.activeInHierarchy != true)
+                    leftCharInfo.gameObject.SetActive(true);
+
+                    //leftCharInfo.UpdateCharInfo();
                     battleHUD.UpdateMovementText();
                     UpdateTurnTag();
 
@@ -134,18 +142,18 @@ public class BattleModeCore : MonoBehaviour
                         {
                             if (hit.collider.GetComponent<TileData>().occupied == true)
                             {
-                                //rightCharInfo.gameObject.SetActive(true);
+                                rightCharInfo.gameObject.SetActive(true);
 
                                 for (int i = 0; i < turnTable.characters.Count; i++)
                                 {
                                     if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
                                     {
-                                        //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
+                                        rightCharInfo.UpdateStats(turnTable.characters[i]);
                                     }
                                 }
                             }
-                            //else
-                            //    rightCharInfo.gameObject.SetActive(false);
+                            else
+                                rightCharInfo.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -162,13 +170,13 @@ public class BattleModeCore : MonoBehaviour
                         {
                             if (hit.collider.GetComponent<TileData>().occupied == true)
                             {
-                                //rightCharInfo.gameObject.SetActive(true);
+                                rightCharInfo.gameObject.SetActive(true);
 
                                 for (int i = 0; i < turnTable.characters.Count; i++)
                                 {
                                     if (turnTable.characters[i].currentPos == hit.collider.GetComponent<TileData>())
                                     {
-                                        //rightCharInfo.UpdateRightCharInfo(turnTable.characters[i]);
+                                       rightCharInfo.UpdateStats(turnTable.characters[i]);
                                     }
                                 }
                             }
@@ -181,8 +189,8 @@ public class BattleModeCore : MonoBehaviour
 
             else if (roundState == RoundState.End)
             {
-                //if (rightCharInfo.gameObject.activeInHierarchy)
-                // rightCharInfo.gameObject.SetActive(false);
+                if (rightCharInfo.gameObject.activeInHierarchy)
+                 rightCharInfo.gameObject.SetActive(false);
 
                 if (showingMovementOptions)
                 {
@@ -224,8 +232,13 @@ public class BattleModeCore : MonoBehaviour
                 // 1. Choose Target
                 // 2. Movement
                 // 3. Attacking
-                if(AI.state == CombatAI.aiState.targeting)
+                if (AI.state == CombatAI.aiState.targeting)
+                {
                     AI.ChooseTarget();
+
+                    rightCharInfo.UpdateStats(AI.target);
+                    rightCharInfo.gameObject.SetActive(true);
+                }
 
                 if (AI.state == CombatAI.aiState.moving)
                     AI.Movement();
@@ -234,7 +247,10 @@ public class BattleModeCore : MonoBehaviour
                     AI.Attack();
 
                 if (AI.state == CombatAI.aiState.end)
+                {
+                    rightCharInfo.gameObject.SetActive(false);
                     roundState = RoundState.End;
+                }
 
             }
 
@@ -252,13 +268,9 @@ public class BattleModeCore : MonoBehaviour
     }
 
     // Initialize map & characters
-    void InitializeBattle()
+    public void InitializeBattle()
     {
-        mapData = MapData.GetResource();
-        turnTable = TurnTable.GetResource();
-        battleHUD = BattleHUD.GetResource();
-        bMovement = BattleMovement.GetResource();
-        sData = SelectionData.GetResource();
+
 
         for (int i = 0; i < mapData.characters.Count; i++)
         {
@@ -278,13 +290,16 @@ public class BattleModeCore : MonoBehaviour
                     closestTile = currTile;
                 }
             }
+            currCharacter.currentPos = closestTile;
+            TileData currentPos = mapData.characters[i].currentPos;
+            currCharacter.stats = mapData.characters[i].GetComponent<CharacterStats>();
+            currCharacter.transform.localPosition = new Vector3(currentPos.x * 2, currentPos.height + 1, currentPos.z * 2);
 
-            mapData.characters[i].currentPos = closestTile;
         }
-
         mapData.UpdateOccupation();
         turnTable.InitializeTable();
         battleHUD.UpdateMovementText();
+        
 
         activeTurnTag = Instantiate(turnTag);
 
@@ -510,10 +525,7 @@ public class BattleModeCore : MonoBehaviour
     public void StartBattle()
     {
         Destroy(startBattleButton);
-        for (int i = 0; i < turnTable.characters.Count; i++)
-        {
-            turnTable.characters[i].enabled = true;
-        }
+        GameCore.GetResource().StartBattleMode();
     }
 
     public void GivePlayerClass(BattleCharacter character)
@@ -526,15 +538,81 @@ public class BattleModeCore : MonoBehaviour
     {
         for(int i = 0; i < mapData.characters.Count; i++)
         {
+
             if (mapData.characters[i].stats.currentHitPoints <= 0)
             {
                 // This character has died
                 mapData.characters[i].stats.DEAD = true;
                 PlayAnimationTrigger(mapData.characters[i], Animations.Death);
+                StartCoroutine("PlayDeathAnimation", mapData.characters[i]);
             }
 
             else
                 mapData.characters[i].stats.DEAD = false;
+        }
+
+        //Check if everyone from either of the teams are dead.
+
+        //EnemyForces
+        List<BattleCharacter> teamList = new List<BattleCharacter>();
+        for(int j = 0; j < turnTable.characters.Count; j++)
+        {
+            if(turnTable.characters[j].team == BattleCharacter.Team.EnemyForces)
+                if(turnTable.characters[j].stats.DEAD == false)
+                {
+                    teamList.Add(turnTable.characters[j]);
+                }
+        }
+
+        if(teamList.Count == 0)
+        {
+            // All enemies dead!
+            Debug.Log("All enemies are dead.");
+            ClearBattleMode();
+            GameCore.GetResource().StartFreeRoam();
+            return;
+        }
+
+        teamList.Clear();
+
+        //PlayerForces
+        for (int j = 0; j < turnTable.characters.Count; j++)
+        {
+            if (turnTable.characters[j].team == BattleCharacter.Team.PlayerForces)
+                if (turnTable.characters[j].stats.DEAD == false)
+                {
+                    teamList.Add(turnTable.characters[j]);
+                }
+        }
+
+        if (teamList.Count == 0)
+        {
+            // All players dead!
+            ClearBattleMode();
+            GameCore.GetResource().StartFreeRoam();
+            Debug.Log("All playerforces are dead.");
+        }
+    }
+
+    void ClearBattleMode()
+    {
+        gameState = GameState.Initialize;
+        roundState = RoundState.Initialize;
+
+        leftCharInfo.gameObject.SetActive(false);
+        rightCharInfo.gameObject.SetActive(false);
+    }
+
+    IEnumerator PlayDeathAnimation(BattleCharacter character)
+    {
+        while (true)
+        {
+            if (character.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Death"))
+            {
+                character.gameObject.SetActive(false);
+                yield break;
+            }
+            yield return null;
         }
     }
 

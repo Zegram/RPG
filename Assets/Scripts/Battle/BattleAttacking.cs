@@ -203,6 +203,7 @@ public class BattleAttacking : MonoBehaviour {
 
         // Update turntable after every attack. (see if dead)
         battleCore.UpdateDeaths();
+
         battleCore.turnTable.UpdateTable();
         //battleCore.leftCharInfo.UpdateLeftCharInfo();
 
@@ -274,7 +275,7 @@ public class BattleAttacking : MonoBehaviour {
                 target.stats.currentHitPoints = target.stats.hitPoints;
         }
 
-        battleCore.leftCharInfo.UpdateLeftCharInfo();
+        //battleCore.leftCharInfo.UpdateCharInfo();
     }
 
     void DisplayStringOnTarget(string text, BattleCharacter target, Color textColor)

@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class MapData : MonoBehaviour
 {
-    public List<TileData> mapTiles = new List<TileData>();
-    public List<BattleCharacter> characters = new List<BattleCharacter>();
+    public List<TileData> mapTiles;
+    public List<BattleCharacter> characters;
 
     void Awake()
     {
+        mapTiles = new List<TileData>();
+        characters = new List<BattleCharacter>();
+
         Transform map = GameObject.Find("Map").transform;
         for(int i = 0; i < map.childCount; i++)
         {

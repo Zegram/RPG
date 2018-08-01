@@ -16,8 +16,8 @@ public class BattleCharacter : MonoBehaviour {
 
     void OnEnable()
     {
-        stats = gameObject.GetComponent<CharacterStats>();
-        transform.localPosition = new Vector3(currentPos.x * 2, currentPos.height + 1, currentPos.z * 2);
+        //stats = gameObject.GetComponent<CharacterStats>();
+        //transform.localPosition = new Vector3(currentPos.x * 2, currentPos.height + 1, currentPos.z * 2);
     }
 
     void Update()

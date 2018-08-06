@@ -19,20 +19,25 @@ public class CharacterInfo : MonoBehaviour
 
     CharacterStats stats = null;
 
-    public enum Side { left, right }
+    enum Side { left, right }
 
-    public Side side = Side.left;
+    Side side = Side.left;
 
     void Start()
     {
         bCore = BattleModeCore.GetResource();
         healthSlider = transform.Find("HealthSlider").GetComponent<Slider>();
         healthNumber = transform.Find("Health").GetComponent<Text>();
-        name = transform.Find("Name").GetComponent<Text>();
-        
+        name = transform.Find("Name").GetComponent<Text>();      
 
-        if(side == Side.left)
-            stats = bCore.turnTable.currentCharacterTurn.stats;
+        if (gameObject.name == "RInfo")
+            side = Side.right;
+
+        else
+            side = Side.left;
+
+        //if (side == Side.left)
+        //    stats = bCore.turnTable.currentCharacterTurn.stats;
 
     }
 
@@ -45,7 +50,7 @@ public class CharacterInfo : MonoBehaviour
 
         healthSlider.maxValue = stats.hitPoints;
         healthSlider.value = stats.currentHitPoints;
-        healthNumber.text = "Health: " + stats.currentHitPoints + " / " + stats.hitPoints;
+        healthNumber.text = stats.currentHitPoints + " / " + stats.hitPoints;
     }
 
     public void UpdateStats(BattleCharacter character)

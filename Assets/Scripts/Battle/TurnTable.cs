@@ -14,7 +14,19 @@ public class TurnTable : MonoBehaviour
     //public GameObject visualTurnTable = null;
     public int turnNumber = 0;
 
+    [Header("Visual Turntable")]
+    public GameObject displayBlock = null;
+    public List<GameObject> displayBlocks = new List<GameObject>();
+    public Vector3 startingPos = new Vector3(-370, 200, 0);
 
+
+    void Start()
+    {
+        displayBlock = (GameObject)Resources.Load("HUD/Displayblock") as GameObject;
+
+        if (displayBlock == null)
+            Debug.Log("Could not locate displayBlock!");
+    }
     void Update()
     {
 
@@ -67,22 +79,68 @@ public class TurnTable : MonoBehaviour
     public void ClearTable()
     {
         characters.Clear();
+
+        for(int i = 0; i < displayBlocks.Count; i++)
+        {
+            GameObject.Destroy(displayBlocks[i]);
+        }
+
+        displayBlocks.Clear();
         currentCharacterTurn = null;
     }
+
+    // Update the visual turntable (blocks)
+    // 1. Remove extra blocks. 2. Add blocks if needed. 3. Arrange blocks into right positions, 4. Update blocks with correct sprites.
     public void UpdateVisualTurnTable()
     {
-        /* for (int i = 0; i < visualTurnTable.transform.childCount; i++)
-         {
-             visualTurnTable.transform.GetChild(i).gameObject.SetActive(false);
-         }
+        // Remove extra blocks if any
+        if (displayBlocks.Count > characters.Count)
+        {
+            // Destroy GameObject block
+            for (int j = 0; j < displayBlocks.Count - characters.Count; j++)
+            {
+                GameObject.Destroy(displayBlocks[characters.Count + j]);
+                
+            }
 
-         for (int i = 0; i < characters.Count; i++)
-         {
-             visualTurnTable.transform.GetChild(i).GetComponent<Image>().sprite = characters[i].stats.charIcon;
-             visualTurnTable.transform.GetChild(i).gameObject.SetActive(true);
+            // Remove empty blocks from list
+            for(int i = 0; i < displayBlocks.Count; i++)
+            {
+                if(displayBlocks[i] == null)
+                {
+                    displayBlocks.RemoveAt(i);
+                }
+            }
+        }
 
+        // Add and/or update blocks for existing characters.              
+        if(characters.Count > displayBlocks.Count)
+        {
+            for(int i = displayBlocks.Count; i < characters.Count; i++)
+            {
+                GameObject block = new GameObject();
+                block = Instantiate(displayBlock);
+                block.transform.SetParent(GameObject.Find("TurnTable").transform);
+                displayBlocks.Add(block);
+            }
+        }
 
-         }*/
+        // Arrange blocks
+        for (int j = 0; j < displayBlocks.Count; j++)
+        {
+            displayBlocks[j].transform.localPosition = new Vector3(startingPos.x + (40 * j), startingPos.y, 0);
+        }
+
+        // Update blocks with the character information
+        for (int i = 0; i < displayBlocks.Count; i++)
+        {
+            //displayBlocks[i].GetComponent<DisplayBlock>().representing = characters[i];
+            if (characters[i].stats.charIcon != null)
+                displayBlocks[i].GetComponent<Image>().sprite = characters[i].stats.charIcon;
+
+            else
+                Debug.Log("Character " + characters[i].name + " has no character icon.");
+        }
     }
 
     public static TurnTable GetResource()

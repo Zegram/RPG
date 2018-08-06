@@ -62,6 +62,7 @@ public class BattleModeCore : MonoBehaviour
     public List<TileData> specialattackTiles = new List<TileData>();
     public GameObject startBattleButton = null;
     public GameObject GiveClassButton = null;
+    public GameObject DebugClone = null;
 
     // START //
 
@@ -73,6 +74,9 @@ public class BattleModeCore : MonoBehaviour
         battleHUD = BattleHUD.GetResource();
         bMovement = BattleMovement.GetResource();
         sData = SelectionData.GetResource();
+
+        //leftCharInfo = GameObject.Find("LInfo").GetComponent<CharacterInfo>();
+        //rightCharInfo = GameObject.Find("RInfo").GetComponent<CharacterInfo>();
 
     }
 
@@ -284,7 +288,7 @@ public class BattleModeCore : MonoBehaviour
                 TileData currTile = mapData.mapTiles[j];
                 float dist = Vector2.Distance(new Vector2(currCharacter.transform.localPosition.x / 2, currCharacter.transform.localPosition.z / 2), new Vector2(currTile.x, currTile.z));
 
-                if (dist < closestPos && !currTile.unpassable)
+                if (dist < closestPos && !currTile.unpassable && !currTile.occupied)
                 {
                     closestPos = dist;
                     closestTile = currTile;
@@ -294,6 +298,7 @@ public class BattleModeCore : MonoBehaviour
             TileData currentPos = mapData.characters[i].currentPos;
             currCharacter.stats = mapData.characters[i].GetComponent<CharacterStats>();
             currCharacter.transform.localPosition = new Vector3(currentPos.x * 2, currentPos.height + 1, currentPos.z * 2);
+            mapData.UpdateOccupation();
 
         }
         mapData.UpdateOccupation();
@@ -524,8 +529,16 @@ public class BattleModeCore : MonoBehaviour
 
     public void StartBattle()
     {
-        Destroy(startBattleButton);
+        //Destroy(startBattleButton);
         GameCore.GetResource().StartBattleMode();
+    }
+
+    public void SpawnEnemy()
+    {
+        GameObject enemy = Instantiate(DebugClone) as GameObject;
+        enemy.transform.SetParent(GameObject.Find("Map").transform);
+        enemy.transform.localPosition = new Vector3(-6f, 2f, 0f);
+        mapData.characters.Add(enemy.GetComponent<BattleCharacter>());
     }
 
     public void GivePlayerClass(BattleCharacter character)

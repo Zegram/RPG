@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CombatAI : MonoBehaviour {
+public class CombatAI : MonoBehaviour
+{
 
     public enum targetGambit
     {
@@ -45,7 +46,7 @@ public class CombatAI : MonoBehaviour {
 
     public void ChooseTarget()
     {
-        if(tGambit == targetGambit.nearest)
+        if (tGambit == targetGambit.nearest)
         {
             // 	Distance: c2 = a2 + b2
             List<BattleCharacter> characters = MapData.GetResource().characters;
@@ -54,15 +55,15 @@ public class CombatAI : MonoBehaviour {
             float closestDistance = 99999;
             float currentDistance = 0;
 
-            for(int i = 0; i < characters.Count; i++)
+            for (int i = 0; i < characters.Count; i++)
             {
-                if(characters[i].team != bCharacter.team)
+                if (characters[i].team != bCharacter.team)
                 {
                     enemies.Add(characters[i]);
                 }
             }
 
-            for(int j = 0; j < enemies.Count; j++)
+            for (int j = 0; j < enemies.Count; j++)
             {
                 currentDistance = Mathf.Pow(bCharacter.currentPos.x - enemies[j].currentPos.x, 2) + Mathf.Pow(bCharacter.currentPos.z - enemies[j].currentPos.z, 2);
                 if (currentDistance <= closestDistance)
@@ -85,27 +86,37 @@ public class CombatAI : MonoBehaviour {
         float closestDistance = 99999;
         float currentDistance = 0;
 
+        currentDistance = Mathf.Pow(target.currentPos.x - bCharacter.currentPos.x, 2) + Mathf.Pow(target.currentPos.z - bCharacter.currentPos.z, 2);
+
+        closestDistance = currentDistance;
+        closestTile = bCharacter.currentPos;
+
         for (int i = 0; i < bCore.movementTiles.Count; i++)
         {
             currentDistance = Mathf.Pow(target.currentPos.x - bCore.movementTiles[i].x, 2) + Mathf.Pow(target.currentPos.z - bCore.movementTiles[i].z, 2);
-            if (currentDistance <= closestDistance)
+            if (currentDistance < closestDistance)
             {
                 closestDistance = currentDistance;
                 closestTile = bCore.movementTiles[i];
             }
         }
 
-        bMovement.MoveCharacterTo(closestTile);
+        // Move if we need to move
+        if(closestTile != bCharacter.currentPos)
+            bMovement.MoveCharacterTo(closestTile);
+
+        else
+            state = CombatAI.aiState.attacking;
     }
 
     public void Attack()
     {
         List<TileData> attackingTiles = BattleAttacking.ShowAttackOptions();
 
-        for(int i = 0; i < attackingTiles.Count; i++)
+        for (int i = 0; i < attackingTiles.Count; i++)
         {
             if (attackingTiles[i] == target.currentPos)
-                bAttacking.AttackCharacter(target);               
+                bAttacking.AttackCharacter(target);
         }
         state = aiState.end;
     }
